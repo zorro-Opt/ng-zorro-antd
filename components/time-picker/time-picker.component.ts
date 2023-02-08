@@ -57,6 +57,7 @@ const NZ_CONFIG_MODULE_NAME: NzConfigKey = 'timePicker';
         [placeholder]="nzPlaceHolder || (i18nPlaceHolder$ | async)"
         [(ngModel)]="inputValue"
         [disabled]="nzDisabled"
+        [readOnly]="nzInputReadOnly"
         (focus)="onFocus(true)"
         (blur)="onFocus(false)"
         (keyup.enter)="onKeyupEnter()"
@@ -65,12 +66,18 @@ const NZ_CONFIG_MODULE_NAME: NzConfigKey = 'timePicker';
       />
       <span class="ant-picker-suffix">
         <ng-container *nzStringTemplateOutlet="nzSuffixIcon; let suffixIcon">
-          <i nz-icon [nzType]="suffixIcon"></i>
+          <span nz-icon [nzType]="suffixIcon"></span>
         </ng-container>
         <nz-form-item-feedback-icon *ngIf="hasFeedback && !!status" [status]="status"></nz-form-item-feedback-icon>
       </span>
       <span *ngIf="nzAllowEmpty && !nzDisabled && value" class="ant-picker-clear" (click)="onClickClearBtn($event)">
-        <i nz-icon nzType="close-circle" nzTheme="fill" [attr.aria-label]="nzClearText" [attr.title]="nzClearText"></i>
+        <span
+          nz-icon
+          nzType="close-circle"
+          nzTheme="fill"
+          [attr.aria-label]="nzClearText"
+          [attr.title]="nzClearText"
+        ></span>
       </span>
     </div>
 
@@ -122,6 +129,7 @@ const NZ_CONFIG_MODULE_NAME: NzConfigKey = 'timePicker';
     '[class.ant-picker-disabled]': `nzDisabled`,
     '[class.ant-picker-focused]': `focused`,
     '[class.ant-picker-rtl]': `dir === 'rtl'`,
+    '[class.ant-picker-borderless]': `nzBorderless`,
     '(click)': 'open()'
   },
   animations: [slideMotion],
@@ -135,10 +143,13 @@ export class NzTimePickerComponent implements ControlValueAccessor, OnInit, Afte
   static ngAcceptInputType_nzAllowEmpty: BooleanInput;
   static ngAcceptInputType_nzDisabled: BooleanInput;
   static ngAcceptInputType_nzAutoFocus: BooleanInput;
+  static ngAcceptInputType_nzBorderless: BooleanInput;
+  static ngAcceptInputType_nzInputReadOnly: BooleanInput;
 
   private _onChange?: (value: Date | null) => void;
   private _onTouched?: () => void;
   private destroy$ = new Subject<void>();
+  private isNzDisableFirstChange: boolean = true;
   isInit = false;
   focused = false;
   inputValue: string = '';
@@ -213,6 +224,8 @@ export class NzTimePickerComponent implements ControlValueAccessor, OnInit, Afte
   @Input() @InputBoolean() nzDisabled = false;
   @Input() @InputBoolean() nzAutoFocus = false;
   @Input() @WithConfig() nzBackdrop = false;
+  @Input() @InputBoolean() nzBorderless: boolean = false;
+  @Input() @InputBoolean() nzInputReadOnly: boolean = false;
 
   emitValue(value: Date | null): void {
     this.setValue(value, true);
@@ -428,7 +441,8 @@ export class NzTimePickerComponent implements ControlValueAccessor, OnInit, Afte
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.nzDisabled = isDisabled;
+    this.nzDisabled = (this.isNzDisableFirstChange && this.nzDisabled) || isDisabled;
+    this.isNzDisableFirstChange = false;
     this.cdr.markForCheck();
   }
 

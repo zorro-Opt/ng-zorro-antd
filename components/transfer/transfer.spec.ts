@@ -317,6 +317,24 @@ describe('transfer', () => {
         expect(event.stopPropagation).toHaveBeenCalled();
       });
     });
+
+    describe('https://github.com/NG-ZORRO/ng-zorro-antd/issues/6667', () => {
+      it('should uncheck "Select all" checkbox after searched items are moved', () => {
+        const { leftList } = pageObject;
+        pageObject.search('left', 'content1');
+        expect(leftList.querySelectorAll('.ant-transfer-list-content-item').length).toBe(1);
+
+        const selectAll = leftList.querySelector<HTMLElement>('.ant-transfer-list-header .ant-checkbox')!;
+        selectAll.click();
+        fixture.detectChanges();
+
+        pageObject.rightBtn.click();
+        fixture.detectChanges();
+
+        expect(selectAll).not.toHaveClass('ant-checkbox-checked');
+        expect(selectAll).not.toHaveClass('ant-checkbox-indeterminate');
+      });
+    });
   });
 
   describe('#canMove', () => {
@@ -606,7 +624,7 @@ class TestTransferComponent implements OnInit {
   template: `
     <nz-transfer #comp nzShowSearch [nzRender]="render" [nzDataSource]="nzDataSource">
       <ng-template #render let-item>
-        <i nz-icon nzType="{{ item.icon }}"></i>
+        <span nz-icon nzType="{{ item.icon }}"></span>
         {{ item.title }}
       </ng-template>
     </nz-transfer>

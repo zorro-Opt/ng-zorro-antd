@@ -268,7 +268,6 @@
       }
     }
   },
-  "defaultProject": "ng-zorro-antd-doc",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "app",
@@ -276,6 +275,12 @@
     },
     "@schematics/angular:directive": {
       "prefix": "app"
+    },
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
     }
   },
   "cli": {
